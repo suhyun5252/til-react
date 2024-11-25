@@ -1,0 +1,37 @@
+.wrap {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 1680px;
+}
+.wrap .notice {
+  width: 1024px;
+}
+.wrap .notice ul li {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 1000px;
+  margin: 0 auto;
+  border: 5px solid red;
+  background-color: orange;
+}
+.wrap .notice ul li:hover {
+  background-color: pink;
+}
+.wrap .slide {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 740px;
+}
+.wrap .banner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 300px;
+}/*# sourceMappingURL=test.css.map */

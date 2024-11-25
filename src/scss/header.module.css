@@ -1,0 +1,21 @@
+.header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.header .layout {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 1000px;
+  margin: 0 auto;
+  width: 1000px;
+}
+.header .layout .gnb ul {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}/*# sourceMappingURL=header.module.css.map */

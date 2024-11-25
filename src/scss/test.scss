@@ -1,0 +1,29 @@
+@import "val";
+@import "mixins";
+
+.wrap {
+  position: relative;
+  @include flex-center;
+  width: $width-screen;
+  .notice {
+    width: $pc-screen;
+    ul {
+      li {
+        @include flex-center-basic;
+        @include border-fn(red);
+        background-color: $color-bg;
+        &:hover {
+          background-color: pink;
+        }
+      }
+    }
+  }
+  .slide {
+    @include flex-center;
+    width: $mb-screen;
+  }
+  .banner {
+    @include flex-center;
+    width: 300px;
+  }
+}
