@@ -3,8 +3,8 @@ import styles from "./header.module.css";
 const Header = () => {
   return (
     <header>
-      <div className={style.layout}>
-        <a href="#" className={style.link}>
+      <div className={styles.layout}>
+        <a href="#" className={styles.link}>
           로고
         </a>
         <div>

@@ -9,7 +9,7 @@
     width: $pc-screen;
     ul {
       li {
-        @include flex-center-basic;
+        @include flex-center;
         @include border-fn(red);
         background-color: $color-bg;
         &:hover {

@@ -13,8 +13,8 @@
 //   width: $basic-width;
 //   margin: 0 auto;
 // }
+
 @mixin flex-center-basic {
-  @include flex-center();
   display: flex;
   justify-content: center;
   align-items: center;
