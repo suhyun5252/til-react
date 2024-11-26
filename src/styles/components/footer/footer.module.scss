@@ -1,0 +1,35 @@
+.footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  height: 100px;
+  background-color: #999;
+  margin: 0 auto;
+  .footer-logo {
+    width: 150px;
+    height: 100px;
+    background-color: #555;
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .copy {
+    width: 600px;
+    height: 100px;
+    background: #bbb;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .sns {
+    width: 200px;
+    height: 100px;
+    background: #797979;
+    color: #eee;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+}
