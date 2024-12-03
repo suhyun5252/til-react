@@ -10,5 +10,45 @@
       "title": "잘되시나요",
       "content": "아니요"
     }
+  ],
+  "diaries": [
+    {
+      "title": "즐거운 하루33",
+      "date": "2024-02-23",
+      "content": "오늘은 정말 행복한 하루2332,,",
+      "mood": 2,
+      "weather": 3,
+      "id": "82d0"
+    },
+    {
+      "id": "3d9e",
+      "title": "즐거운 하루2",
+      "date": "2024-12-22",
+      "content": "오늘은 정말 행복한 하루222,,",
+      "mood": 2,
+      "weather": 3
+    }
+  ],
+  "member": [
+    {
+      "id": "3d7e",
+      "email": "b@netsddddddds",
+      "pw": "ssss"
+    },
+    {
+      "id": "d850",
+      "email": "dfs@ff",
+      "pw": "fff"
+    },
+    {
+      "id": "4777",
+      "email": "d@dfs",
+      "pw": "sssssssssssssssss"
+    },
+    {
+      "id": "aa77",
+      "email": "ss@sss",
+      "pw": "dd"
+    }
   ]
 }
