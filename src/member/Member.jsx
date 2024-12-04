@@ -1,5 +1,6 @@
-import { useState } from "react";
-import { useEffect } from "react";
+import axios from "axios";
+import { useState, useEffect } from "react";
+import { deleteMember, getMembers } from "../apis/members";
 
 const Member = () => {
   const API_URL = "http://localhost:5000/member";
@@ -34,32 +35,11 @@ const Member = () => {
     postMember({ ...formData });
   };
   //   API 메서드
-  const getMembers = async () => {
-    try {
-      const res = await fetch(API_URL);
-      const data = await res.json();
-      setMemberList(data);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-  const getMember = () => {};
-  const deleteMember = async id => {
-    try {
-      await fetch(`${API_URL}/${id}`, { method: "DELETE" });
-      getMembers();
-    } catch (error) {
-      console.log(error);
-    }
-  };
+
   const postMember = async item => {
     try {
-      await fetch(API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(item),
-      });
-      getMembers();
+      await axios.post(API_URL, item);
+      callApiMember();
       setFormData(initData);
     } catch (error) {
       console.log(error);
@@ -67,11 +47,7 @@ const Member = () => {
   };
   const putMember = async item => {
     try {
-      await fetch(`${API_URL}/${item.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(item),
-      });
+      await axios.put(`${API_URL}/${item.id}`, item);
 
       getMembers();
       setIsEdit(false);
@@ -79,8 +55,24 @@ const Member = () => {
       console.log(error);
     }
   };
+
+  // 호출도 하면서 호출된 결과를 state 업데이트에 반영도하고
+  const callApiMember = async () => {
+    const result = await getMembers();
+    setMemberList(result);
+  };
+
+  const callApiDelete = async id => {
+    const result = await deleteMember(id);
+    if (result === "success") {
+      callApiMember();
+    } else {
+      alert("다시 시도하세요");
+    }
+  };
+
   useEffect(() => {
-    getMembers();
+    callApiMember();
     return () => {};
   }, []);
   return (
@@ -96,7 +88,13 @@ const Member = () => {
               >
                 {item.id} {item.email}
               </div>
-              <button onClick={() => deleteMember(item.id)}>삭제</button>
+              <button
+                onClick={() => {
+                  callApiDelete(item.id);
+                }}
+              >
+                삭제
+              </button>
             </div>
           );
         })}

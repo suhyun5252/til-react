@@ -1,269 +1,13 @@
-# fetch 로 REST API 연동해 보기
+# Axios 활용
 
-- `async...await` 로 비동기처리를 기준
+- https://axios-http.com/kr/docs/intro
+- `npm install axios`
 
-## 1. 사전 조건은 백엔드 서버가 활성화 되어 있어야 한다.
-
-- 터미널에 prompt 현재 폴더가 `server`여야 함
-- `npm run start` 실행
-- `192.168.0.66:5000`
-
-## 2. fetch로 데이터 연동하기
-
-- `jwt` 인증없이 진행인 경우
-- `javascript web token` 을 말함
-- /src/todos/ 폴더 생성
-- /src/todos/Todo.jsx 파일 생성
-- /src/main.jsx import하기
-
-# fetch 로 REST API 연동해 보기
-
-- `async ... await` 로 비동기처리를 기준
-
-## 1. 사전 조건은 백엔드가 활성화 되어 있어야 해요.
-
-- 터미널에 prompt 현재 폴더가 `server` 여야 함.
-- `npm run start` 실행
-- `http://192.168.0.66:5000/todos`
-- `{"title":"" "content":""}`
-
-## 2. fetch 로 데이터 연동하기
-
-- `jwt` 인증없이 진행인 경우
-- `javaScript web token` 을 말함.
-- `/src/todos/` 폴더 생성
-- `/src/todos/Todo.jsx` 파일 생성
-- `/src/main.jsx` 임폴트
+## 1. 기본 사용법
 
 ```jsx
-import { useEffect, useState } from "react";
-
-const Todo = () => {
-  const initData = {
-    title: "",
-    content: "",
-  };
-  // 화면 갱신용 state
-  const [todoList, setTodoList] = useState([]);
-  const [formData, setFormData] = useState(initData);
-
-  // 내용 수정용 state
-  const initPutData = {
-    id: "",
-    title: "",
-    content: "",
-  };
-  const [putData, setPutData] = useState(initPutData);
-
-  // 전체목록
-  const getTodos = async () => {
-    console.log("서버접속 후 전체 할일 가져옮");
-    try {
-      const res = await fetch(`http://192.168.0.66:5000/todos`);
-      const data = await res.json();
-      //새로 리랜더링하라!
-      setTodoList(data);
-    } catch (error) {
-      console.log(`에러입니다 : ${error}`);
-      console.log(`잠시 후 다시 시도해주세요.`);
-    }
-  };
-  // 상세내용보기
-  const getTodoDetail = async _id => {
-    try {
-      const res = await fetch(`http://192.168.0.66:5000/todos/${_id}`);
-      const data = await res.json();
-      console.log(data);
-    } catch (error) {
-      console.log(`네트워크 오류입니다. ${error}`);
-      console.log(`잠시 후 다시 시도해 주세요.`);
-    }
-  };
-  // 할일등록 1개
-  const postTodo = async () => {
-    try {
-      const res = await fetch(`http://192.168.0.66:5000/todos`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
-
-      alert("할일이 등록되었습니다.");
-      getTodos();
-      setFormData(initData);
-    } catch (error) {
-      console.log(`네트웍이 불안정합니다. ${error}`);
-      console.log(`잠시후 다시 시도해 주세요.`);
-    }
-  };
-  // 할일삭제 1개
-  const deleteTodo = async _id => {
-    try {
-      const res = await fetch(`http://192.168.0.66:5000/todos/${_id}`, {
-        method: "DELETE",
-      });
-      alert("데이터가 성공적으로 삭제되었습니다");
-      getTodos();
-    } catch (error) {
-      console.log(`네트워크 오류입니다. ${error}`);
-      console.log(`잠시 후 다시 시도해 주세요.`);
-    }
-  };
-  // 할일 1개의 내용 수정
-  const putTodo = async () => {
-    const { id, title, content } = putData;
-    try {
-      await fetch(`http://192.168.0.66:5000/todos/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title,
-          content,
-        }),
-      });
-      alert("수정되었습니다.");
-      // 다시읽기
-      getTodos();
-    } catch (error) {
-      console.log(`서버가 불안정합니다. ${error}`);
-      console.log(`잠시 후 시도해주세요`);
-    }
-  };
-
-  // 이벤트 핸들링
-  const handleChange = e => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
-  const handleSubmit = e => {
-    // 웹브라우저 새로갱신 안되요.
-    e.preventDefault();
-    if (formData.title === "") {
-      alert("제목을 입력하세요.");
-      return;
-    }
-    if (formData.content === "") {
-      alert("내용을 입력하세요.");
-      return;
-    }
-    postTodo();
-  };
-  // 상세보기 핸들링
-  const handleClickDetail = _item => {
-    setPutData({ ..._item });
-  };
-  // 수정용 핸들링
-  const handleChangePut = e => {
-    const { name, value } = e.target;
-    setPutData({ ...putData, [name]: value });
-  };
-  const handleSubmitPut = e => {
-    // 아래가 없으면 새로 고침되면서 모든 임시 초기화 된다.
-    // 반드시 필요.
-    e.preventDefault();
-    if (putData.title === "") {
-      alert("제목이 필요합니다.");
-      return;
-    }
-    if (putData.content === "") {
-      alert("내용이 필요합니다.");
-      return;
-    }
-
-    putTodo();
-  };
-
-  // 컴포넌트 보이면 최초 딱 한번 실행
-  useEffect(() => {
-    // 처음에 todo 로 이동하면, 할일 목록 전체 가져 옮
-    getTodos();
-
-    return () => {};
-  }, []);
-  return (
-    <div>
-      <h1>Todo 등록</h1>
-      <div>
-        <form onSubmit={e => handleSubmit(e)}>
-          <div>
-            <label>제목</label>
-            <input
-              name="title"
-              value={formData.title}
-              onChange={e => handleChange(e)}
-            />
-          </div>
-          <div>
-            <label>내용</label>
-            <textarea
-              name="content"
-              value={formData.content}
-              onChange={e => handleChange(e)}
-            ></textarea>
-          </div>
-          <div>
-            <button type="submit">등록</button>
-          </div>
-        </form>
-      </div>
-      <h2>상세보기</h2>
-      <div>
-        <form onSubmit={e => handleSubmitPut(e)}>
-          <div>
-            <label>선택한 제목</label>
-            <input
-              type="text"
-              name="title"
-              value={putData.title}
-              onChange={e => handleChangePut(e)}
-            />
-          </div>
-          <div>
-            <label>선택한 내용</label>
-            <textarea
-              name="content"
-              value={putData.content}
-              onChange={e => handleChangePut(e)}
-            ></textarea>
-          </div>
-          <div>
-            <button type="submit">수정</button>
-          </div>
-        </form>
-      </div>
-      <h2>Todo List</h2>
-      <div>
-        {todoList.map(item => {
-          return (
-            <div key={item.id}>
-              {item.id} : {item.title}
-              <button
-                type="button"
-                onClick={() => {
-                  deleteTodo(item.id);
-                }}
-              >
-                삭제
-              </button>
-              <button type="button" onClick={() => setPutData({ ...item })}>
-                수정
-              </button>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-};
-
-export default Todo;
-```
-
-```jsx
-import { useState } from "react";
-import { useEffect } from "react";
+import axios from "axios";
+import { useState, useEffect } from "react";
 
 const Member = () => {
   const API_URL = "http://localhost:5000/member";
@@ -300,29 +44,32 @@ const Member = () => {
   //   API 메서드
   const getMembers = async () => {
     try {
-      const res = await fetch(API_URL);
-      const data = await res.json();
-      setMemberList(data);
+      const res = await axios.get(API_URL);
+      setMemberList(res.data);
     } catch (error) {
       console.log(error);
     }
   };
-  const getMember = () => {};
+  const getMember = async id => {
+    try {
+      const res = await axios.get(`${API_URL}/${id}`);
+      console.log(res.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
   const deleteMember = async id => {
     try {
-      await fetch(`${API_URL}/${id}`, { method: "DELETE" });
+      await axios.delete(`${API_URL}/${id}`);
       getMembers();
+      setFormData(initData);
     } catch (error) {
       console.log(error);
     }
   };
   const postMember = async item => {
     try {
-      await fetch(API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(item),
-      });
+      await axios.post(API_URL, item);
       getMembers();
       setFormData(initData);
     } catch (error) {
@@ -331,12 +78,7 @@ const Member = () => {
   };
   const putMember = async item => {
     try {
-      await fetch(`${API_URL}/${item.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(item),
-      });
-
+      await axios.put(`${API_URL}/${item.id}`, item);
       getMembers();
       setIsEdit(false);
     } catch (error) {
@@ -433,4 +175,384 @@ const Member = () => {
 };
 
 export default Member;
+```
+
+## 2. 예외 및 에러 처리
+
+- 우리가 fetch 또는 axios를 활용해서 request 하면
+- API 백엔드 서버는 response를 합니다.
+  :
+
+```json
+{
+  // `data`는 서버가 제공하는 응답입니다.
+  "data": {},
+
+  // `status`는 HTTP 상태 코드입니다.
+  "status": 200,
+
+  // `statusText`는 HTTP 상태 메시지입니다.
+  "statusText": "OK",
+
+  // `headers`는 HTTP 헤더입니다.
+  // 모든 헤더 이름은 소문자이며, 괄호 표기법을 사용하여 접근할 수 있습니다.
+  // 예시: `response.headers['content-type']`
+  "headers": {},
+
+  // `config`는 요청을 위해 `Axios`가 제공하는 구성입니다.
+  "config": {},
+
+  // `request`는 이번 응답으로 생성된 요청입니다.
+  // 이것은 node.js에서 마지막 ClientRequest 인스턴스 입니다.
+  // 브라우저에서는 XMLHttpRequest입니다.
+  "request": {}
+}
+```
+
+### 2.1 status 값 참조
+
+- https://developer.mozilla.org/ko/docs/Web/HTTP/Status
+
+```jsx
+const getMembers = async () => {
+  try {
+    const res = await axios.get(API_URL);
+    console.log(res.status);
+    // 정상적으로 데이터의 결과가 있으므로
+    //  api 회신의 값이 200번 대의 값은 성공
+    const responseStatus = res.status.toString().charAt(0);
+    if (res.status === "2") {
+      setMemberList(res.data);
+    } else {
+      console.log("데이터가 없어요");
+    }
+  } catch (error) {
+    // 만약 404 ,400번 대라면 내꺼 오타 확인하자!
+    const errorStatus = error.response.status.toString().charAt(0);
+    if (errorStatus === "5") {
+      alert("서버가 꺼졌어요");
+    }
+    if (errorStatus === "4") {
+      alert("호출을 실패했습니다.");
+    }
+    console.log(error);
+  }
+};
+```
+
+### 2.2 백엔드 협업시 (예: axios,fetch 등) 코딩 컨벤션
+
+- `/src/apis/` 폴더 생성 권장함
+- `/src/apis/config.js` 파일 생성 권장
+
+```
+import axios from "axios";
+
+export const API_URL = "http://localhost:5000/member";
+
+export const axiosInstance = axios.create();
+
+
+```
+
+- `/src/apis/members.js` 기능별 담당 파일 생성
+
+```
+export const getMembers = async setFunc => {
+  try {
+    const res = await axiosInstance.get(API_URL);
+    console.log(res.status);
+    // 정상적으로 데이터의 결과가 있으므로
+    //  api 회신의 값이 200번 대의 값은 성공
+    const responseStatus = res.status.toString().charAt(0);
+    if (responseStatus === "2") {
+      setFunc(res.data);
+    } else {
+      console.log("데이터가 없어요");
+    }
+  } catch (error) {
+    // 만약 404 ,400번 대라면 내꺼 오타 확인하자!
+    const errorStatus = error.response.status.toString().charAt(0);
+    if (errorStatus === "5") {
+      alert("서버가 꺼졌어요");
+    }
+    if (errorStatus === "4") {
+      alert("호출을 실패했습니다.");
+    }
+    console.log(error);
+  }
+};
+```
+
+- `/src/apis/todos.js` 기능별 담당 파일 생성
+- `/src/apis/diary.js` 기능별 담당 파일 생성
+
+## 2.3 package.json 수정(proxy)
+
+- 수작업
+- `"proxy" : 백엔드측의 ip 주소를 작성합니다.`
+
+```
+  "proxy": "http://192.168.0.66"
+```
+
+-Member.jsx
+
+```jsx
+<h1>Member 관리</h1>
+      <div>
+        {memberList.map(item => {
+          return (
+            <div key={item.id}>
+              <div
+                onClick={() => setSelectUser({ ...item })}
+                style={{ cursor: "pointer", backgroundColor: "yellow" }}
+              >
+                {item.id} {item.email}
+              </div>
+              <button onClick={() => deleteMember(item.id, setMemberList)}>
+                삭제
+              </button>
+            </div>
+          );
+        })}
+      </div>
+```
+
+```js
+// 삭제 기능
+export const deleteMember = async (id, setMemberList) => {
+  try {
+    await axiosInstance.delete(`${API_URL}/${id}`);
+    getMembers(setMemberList);
+  } catch (error) {
+    console.log(error);
+  }
+};
+```
+
+### 2.3 향후 시간이 지나면서 코드 고도화를 시도합니다.
+
+- 1단계
+  : API 호출과 화면갱신 즉, state 관리를 .jsx 에서 작성
+- 2단계
+  : API 호출을 별도 파일로 분리, state 관리도 옮겨보고
+- 3단계
+  : API 호출은 JS에서 진행, 그 결과를 return 받아 jsx에서 활용하도록 시도
+
+```jsx
+import axios from "axios";
+import { useState, useEffect } from "react";
+import { deleteMember, getMembers } from "../apis/members";
+
+const Member = () => {
+  const API_URL = "http://localhost:5000/member";
+  // member 목록 관리
+  const [memberList, setMemberList] = useState([]);
+  // 서버에 등록할 데이터 관리
+  const initData = { email: "", pw: "" };
+  const [formData, setFormData] = useState(initData);
+  // 선택된 멤버 관리
+  const selectData = { id: "", email: "", pw: "" };
+  const [selectUser, setSelectUser] = useState(selectData);
+  // 현재 선택된 멤버 수정 중 ?
+  const [isEdit, setIsEdit] = useState(false);
+  const handleChangeEdit = e => {
+    const { name, value } = e.target;
+    setSelectUser({ ...selectUser, [name]: value });
+  };
+  const handleSubmitEdit = e => {
+    // 웹브라우저 새로고침 방지
+    e.preventDefault();
+    putMember({ ...selectUser });
+  };
+
+  // 이벤트 핸들러 함수
+  const handleChange = e => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
+  const handleSubmit = e => {
+    // 웹브라우저 새로고침 방지
+    e.preventDefault();
+    postMember({ ...formData });
+  };
+  //   API 메서드
+
+  const postMember = async item => {
+    try {
+      await axios.post(API_URL, item);
+      callApiMember();
+      setFormData(initData);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const putMember = async item => {
+    try {
+      await axios.put(`${API_URL}/${item.id}`, item);
+
+      getMembers();
+      setIsEdit(false);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  // 호출도 하면서 호출된 결과를 state 업데이트에 반영도하고
+  const callApiMember = async () => {
+    const result = await getMembers();
+    setMemberList(result);
+  };
+
+  const callApiDelete = async id => {
+    const result = await deleteMember(id);
+    if (result === "success") {
+      callApiMember();
+    } else {
+      alert("다시 시도하세요");
+    }
+  };
+
+  useEffect(() => {
+    callApiMember();
+    return () => {};
+  }, []);
+  return (
+    <div>
+      <h1>Member 관리</h1>
+      <div>
+        {memberList.map(item => {
+          return (
+            <div key={item.id}>
+              <div
+                onClick={() => setSelectUser({ ...item })}
+                style={{ cursor: "pointer", backgroundColor: "yellow" }}
+              >
+                {item.id} {item.email}
+              </div>
+              <button
+                onClick={() => {
+                  callApiDelete(item.id);
+                }}
+              >
+                삭제
+              </button>
+            </div>
+          );
+        })}
+      </div>
+      <h2>새 멤버 추가</h2>
+      <div>
+        <form onSubmit={e => handleSubmit(e)}>
+          이메일
+          <input
+            type="email"
+            name="email"
+            value={formData.email}
+            onChange={e => handleChange(e)}
+          />
+          <br />
+          비번
+          <input
+            type="password"
+            name="pw"
+            value={formData.pw}
+            onChange={e => handleChange(e)}
+          />
+          <br />
+          <button type="submit">회원가입</button>
+        </form>
+      </div>
+      <h3>상세 회원정보</h3>
+      {selectUser?.id !== "" ? (
+        <div>
+          <form onSubmit={e => handleSubmitEdit(e)}>
+            이메일
+            <input
+              type="email"
+              name="email"
+              value={selectUser.email}
+              readOnly={!isEdit}
+              disabled={!isEdit}
+              onChange={e => handleChangeEdit(e)}
+            />
+            <br />
+            비번
+            <input
+              type="password"
+              name="pw"
+              value={selectUser.pw}
+              readOnly={!isEdit}
+              disabled={!isEdit}
+              onChange={e => handleChangeEdit(e)}
+            />
+            <br />
+            {isEdit ? (
+              <>
+                <button type="submit">정보 수정 등록</button>
+                <button type="button" onClick={() => setIsEdit(false)}>
+                  정보 수정 취소
+                </button>
+              </>
+            ) : (
+              <button type="button" onClick={() => setIsEdit(true)}>
+                정보수정
+              </button>
+            )}
+          </form>
+        </div>
+      ) : (
+        "선택된 회원이 없습니다."
+      )}
+    </div>
+  );
+};
+
+export default Member;
+```
+
+```js
+import { API_URL, axiosInstance } from "./config";
+
+export const getMembers = async () => {
+  try {
+    const res = await axiosInstance.get(API_URL);
+    // console.log("결과 : ", res.status);
+    // 정상적으로 데이터의 결과가 있으면
+    // API 회신의 200 류의 값은 성공입니다.
+    const responseStatus = res.status.toString().charAt(0);
+    if (responseStatus === "2") {
+      return res.data;
+    } else {
+      console.log("데이터가 없어요.");
+      return [];
+    }
+  } catch (error) {
+    console.log("에러 : ", error);
+    // 만약 404 라면 또는 400 류라면 `우리`를 의심하자.
+    const errorStatus = error.response.status.toString().charAt(0);
+
+    if (errorStatus === "5") {
+      alert("서버가 꺼졌어요.");
+    }
+    if (errorStatus === "4") {
+      alert("호출에 실패하였습니다.");
+    }
+    console.log(error);
+    return [];
+  }
+};
+// 삭제 기능
+export const deleteMember = async id => {
+  try {
+    const res = await axiosInstance.delete(`${API_URL}/${id}`);
+    // return res.status;
+    return "success";
+  } catch (error) {
+    console.log(error);
+    // return error.res.status;
+    return "fail";
+  }
+};
 ```
