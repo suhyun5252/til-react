@@ -1,9 +1,17 @@
+/* 글꼴 설정 */
+@font-face {
+  font-family: "chab";
+  src: url("/chab.ttf");
+}
+@font-face {
+  font-family: "ddag";
+  src: url("/ddag.ttf");
+}
 :root {
   --primary-color: #000000;
   --secondary-color: #0000ff;
   --font-size-base: 16px;
 }
-
 * {
   margin: 0;
   padding: 0;
@@ -21,6 +29,7 @@ html {
   font-size: 16px;
 }
 body {
+  font-family: "ddag";
   font-size: var(--font-size-base);
   color: var(--primary-color);
 }
