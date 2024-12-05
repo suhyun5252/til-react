@@ -1,558 +1,547 @@
-# Axios 활용
+# react-router-dom
 
-- https://axios-http.com/kr/docs/intro
-- `npm install axios`
+- 리액트에는 http 경로를 이용한 화면이동이 없다.
+- 통상 http 경로를 `라우터`라고 한다.
+- `라우터` 를 사용하려면 `react-router-dom` 을 사용해야한다.
 
-## 1. 기본 사용법
+## 1. 참고사항
+
+- 링크
+
+```html
+<a href="라우터">이동</a>
+```
+
+- form의 action
+
+```html
+<form action="라우터">...</form>
+```
+
+## 2. URI의 구성
+
+- `http://localhost:3000/todo/login?id=hong&pass=123`
+
+### 2.1 Protocal(네트워킹을 위한 약속)
+
+- `http://`
+
+```
+HTTP (HyperText Transfer Protocol)
+ : 웹 브라우저와 서버 간의 데이터 전송.
+
+HTTPS (HTTP Secure)
+ : HTTP에 보안(SSL/TLS)을 추가한 프로토콜.
+
+FTP (File Transfer Protocol)
+ : 파일 전송에 사용.
+
+SMTP (Simple Mail Transfer Protocol)
+ : 이메일 전송.
+
+IMAP (Internet Message Access Protocol)
+ : 이메일 수신(서버에서 관리).
+
+POP3 (Post Office Protocol 3)
+ : 이메일 수신(다운로드 후 로컬 관리).
+
+DNS (Domain Name System)
+ : 도메인 이름을 IP 주소로 변환.
+
+DHCP (Dynamic Host Configuration Protocol)
+ : 동적 IP 주소 할당.
+```
+
+### 2.2 도메인 (Domain)
+
+-`localhost`
+
+- 일반적으로 대화에서 `홈페이지 주소`로 이해
+- 가끔 코딩할때 `도메인`을 지켜서 `업무를 식별`해서 개발하기
+- `DNS`는 `Domain Name System` 로서 IP 에 글자이름 부여
+
+### 2.3 Port 번호
+
+-`:3000`
+
+- `80` port : 기본 포트 (도메인으로 접속시 자동연결)
+  : 80은 안적으면 작동
+
+### 2.4 Path
+
+- 물음표 앞에까지
+- 경로 `/todo/login?`
+- 경로 `/member/login?`
+
+### 2.5 Query String
+
+- `?~~~~~`
+- 질의문 (질문하고 결과를 받겠다)
+
+## 3. URI를 이용해서 React 에서 활용
+
+- `react-router-dom`
+- (https://www.npmjs.com/package/react-router-dom)
+- (https://reactrouter.com/start/framework/route-module)
+- 설치 `npm i react-router-dom`
+
+## 4. 활용전에 먼저 고민
+
+- Site map 을 고민해보자
+
+```
+http://localhost:3000/ : 첫페이지
+http://localhost:3000/about : 소개
+http://localhost:3000/about/mission : 미션
+http://localhost:3000/about/team : 팀
+
+
+http://localhost:3000/service : 서비스
+
+http://localhost:3000/blog : 블로그
+http://localhost:3000/blog/design : 디자인
+http://localhost:3000/blog/design/1 : REST_API
+http://localhost:3000/blog/design/detail?id=1 : query-string(쇼핑몰이나 sns)
+
+
+http://localhost:3000/blog/market : 마켓
+http://localhost:3000/blog/news : 뉴스
+
+http://localhost:3000/portfolio : 포트폴리오
+http://localhost:3000/contact : 연락하기
+
+```
+
+## 5. Route 에 맞게 pages 폴더 구성하기
+
+- `http://localhost:3000/` Root 페이지 또는 라우터
+  : `src/pages/Index.jsx` 를 말합니다.
+
+- `http://localhost:3000/about`
+  : `src/pages/about/Index.jsx` 를 말합니다.
+
+- `http://localhost:3000/about/team`
+  : `src/pages/about/Team.jsx` 를 말합니다.
+
+- `http://localhost:3000/service`
+  : `src/pages/service/Index.jsx` 를 말합니다.
+
+- `http://localhost:3000/service/now`
+  : `src/pages/service/Now.jsx` 를 말합니다.
+
+- `http://localhost:3000/blog`
+  : `src/pages/blog/Index.jsx` 를 말합니다.
+
+- `http://localhost:3000/blog/1`
+  : `src/pages/blog/Detail.jsx` 를 말합니다.
+
+- `http://localhost:3000/blog/list?id=1&cate=design`
+  : `src/pages/blog/List.jsx` 를 말합니다.
+
+## 6. Route 적용은 App.js 에 하기로 해요.
+
+- 아래를 지켜주셔야 합니다.
+- `as` 를 확인하세요.
+- `Router > Routes > Route`
 
 ```jsx
-import axios from "axios";
-import { useState, useEffect } from "react";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+// as 는 alias 라는 문법으로 별칭을 지음
+function App() {
+  return (
+    <Router>
+      <Routes>
+        <Route />
+        <Route />
+        <Route />
+      </Routes>
+    </Router>
+  );
+}
 
-const Member = () => {
-  const API_URL = "http://localhost:5000/member";
-  // member 목록 관리
-  const [memberList, setMemberList] = useState([]);
-  // 서버에 등록할 데이터 관리
-  const initData = { email: "", pw: "" };
-  const [formData, setFormData] = useState(initData);
-  // 선택된 멤버 관리
-  const selectData = { id: "", email: "", pw: "" };
-  const [selectUser, setSelectUser] = useState(selectData);
-  // 현재 선택된 멤버 수정 중 ?
-  const [isEdit, setIsEdit] = useState(false);
-  const handleChangeEdit = e => {
-    const { name, value } = e.target;
-    setSelectUser({ ...selectUser, [name]: value });
-  };
-  const handleSubmitEdit = e => {
-    // 웹브라우저 새로고침 방지
-    e.preventDefault();
-    putMember({ ...selectUser });
-  };
+export default App;
+```
 
-  // 이벤트 핸들러 함수
-  const handleChange = e => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
-  const handleSubmit = e => {
-    // 웹브라우저 새로고침 방지
-    e.preventDefault();
-    postMember({ ...formData });
-  };
-  //   API 메서드
-  const getMembers = async () => {
-    try {
-      const res = await axios.get(API_URL);
-      setMemberList(res.data);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-  const getMember = async id => {
-    try {
-      const res = await axios.get(`${API_URL}/${id}`);
-      console.log(res.data);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-  const deleteMember = async id => {
-    try {
-      await axios.delete(`${API_URL}/${id}`);
-      getMembers();
-      setFormData(initData);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-  const postMember = async item => {
-    try {
-      await axios.post(API_URL, item);
-      getMembers();
-      setFormData(initData);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-  const putMember = async item => {
-    try {
-      await axios.put(`${API_URL}/${item.id}`, item);
-      getMembers();
-      setIsEdit(false);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-  useEffect(() => {
-    getMembers();
-    return () => {};
-  }, []);
+### 6.1. `기본`으로 작업하신다면
+
+```jsx
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+// as 는 alias 라는 문법으로 별칭을 지음
+import HomePage from "./pages/Index";
+import AboutPage from "./pages/about/Index";
+import TeamPage from "./pages/about/Team";
+import ServicePage from "./pages/service/Index";
+import NowPage from "./pages/service/Now";
+import BlogPage from "./pages/blog/Index";
+import BlogDetailPage from "./pages/blog/Detail";
+import BlogListPage from "./pages/blog/List";
+function App() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/about" element={<AboutPage />} />
+        <Route path="/about/team" element={<TeamPage />} />
+        <Route path="/service" element={<ServicePage />} />
+        <Route path="/service/now" element={<NowPage />} />
+        <Route path="/blog" element={<BlogPage />} />
+        <Route path="/blog/1" element={<BlogDetailPage />} />
+        <Route path="/blog/list?id=1&cate=design" element={<BlogListPage />} />
+      </Routes>
+    </Router>
+  );
+}
+
+export default App;
+```
+
+### 6.2 중첩(Nested) 라우터
+
+- `일반적`으로 활용
+- `<Route index component={컴포넌트}>`index 주의
+
+```jsx
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+//  as 는 alias 라는 문법으로 별칭을 지음
+import HomePage from "./pages/Index.jsx";
+import AboutPage from "./pages/about/Index.jsx";
+import TeamPage from "./pages/about/Team.jsx";
+import ServicePage from "./pages/service/Index.jsx";
+import NowPage from "./pages/service/Now.jsx";
+import BlogPage from "./pages/blog/Index.jsx";
+import BlogDetailPage from "./pages/blog/Detail.jsx";
+import BlogListPage from "./pages/blog/List.jsx";
+const App = () => {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+
+        <Route path="/about">
+          <Route index element={<AboutPage />} />
+          <Route path="team" element={<TeamPage />} />
+        </Route>
+
+        <Route path="/service">
+          <Route index element={<ServicePage />}></Route>
+          <Route path="now" element={<NowPage />} />
+        </Route>
+
+        <Route path="/blog">
+          <Route index element={<BlogPage />}></Route>
+          <Route path="1" element={<BlogDetailPage />} />
+          <Route path="list?id=1&cate=design" element={<BlogListPage />} />
+        </Route>
+      </Routes>
+    </Router>
+  );
+};
+export default App;
+```
+
+### 6.3 존재하지 않은 path로 접근시 처리법
+
+- path는 `*`. 제일 하단에 배치 권장
+- `<Route path="*" element={<NotFound/>}></Route>`
+
+## 7. 라우터에 `Params` 전달하기
+
+- `Param` 단어를 반드시 기억하기
+- 백엔드 연동시 필수 내용
+- `패스/param`
+- `http://localhost:5173/good/10` : 10이 `param`
+- `http://localhost:5173/blog/21` : 21이 `param`
+
+- 보낼때
+
+```jsx
+<Route path=":id" element={<BlogDetailPage />} />
+```
+
+-받을때
+
+```jsx
+import { useParams } from "react-router-dom";
+
+const Detail = () => {
+  const { id } = useParams();
   return (
     <div>
-      <h1>Member 관리</h1>
-      <div>
-        {memberList.map(item => {
-          return (
-            <div key={item.id}>
-              <div
-                onClick={() => setSelectUser({ ...item })}
-                style={{ cursor: "pointer", backgroundColor: "yellow" }}
-              >
-                {item.id} {item.email}
-              </div>
-              <button onClick={() => deleteMember(item.id)}>삭제</button>
-            </div>
-          );
-        })}
-      </div>
-      <h2>새 멤버 추가</h2>
-      <div>
-        <form onSubmit={e => handleSubmit(e)}>
-          이메일
-          <input
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={e => handleChange(e)}
-          />
-          <br />
-          비번
-          <input
-            type="password"
-            name="pw"
-            value={formData.pw}
-            onChange={e => handleChange(e)}
-          />
-          <br />
-          <button type="submit">회원가입</button>
-        </form>
-      </div>
-      <h3>상세 회원정보</h3>
-      {selectUser?.id !== "" ? (
-        <div>
-          <form onSubmit={e => handleSubmitEdit(e)}>
-            이메일
-            <input
-              type="email"
-              name="email"
-              value={selectUser.email}
-              readOnly={!isEdit}
-              disabled={!isEdit}
-              onChange={e => handleChangeEdit(e)}
-            />
-            <br />
-            비번
-            <input
-              type="password"
-              name="pw"
-              value={selectUser.pw}
-              readOnly={!isEdit}
-              disabled={!isEdit}
-              onChange={e => handleChangeEdit(e)}
-            />
-            <br />
-            {isEdit ? (
-              <>
-                <button type="submit">정보 수정 등록</button>
-                <button type="button" onClick={() => setIsEdit(false)}>
-                  정보 수정 취소
-                </button>
-              </>
-            ) : (
-              <button type="button" onClick={() => setIsEdit(true)}>
-                정보수정
-              </button>
-            )}
-          </form>
-        </div>
-      ) : (
-        "선택된 회원이 없습니다."
-      )}
+      /blog/<b>{id}</b> 블로그 상세 페이지(RestAPI 방식)
     </div>
   );
 };
 
-export default Member;
+export default Detail;
 ```
 
-## 2. 예외 및 에러 처리
+## 8. 쿼리 스트링 활용하기
 
-- 우리가 fetch 또는 axios를 활용해서 request 하면
-- API 백엔드 서버는 response를 합니다.
-  :
+- `?` 는 `Search`
 
-```json
-{
-  // `data`는 서버가 제공하는 응답입니다.
-  "data": {},
+```jsx
+import { useSearchParams } from "react-router-dom";
 
-  // `status`는 HTTP 상태 코드입니다.
-  "status": 200,
+function List() {
+  // Search Params 데이터 내용 출력하기
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  // `statusText`는 HTTP 상태 메시지입니다.
-  "statusText": "OK",
+  // 개별 데이터 뜯기
+  const id = searchParams.get("id");
+  const cate = searchParams.get("cate");
 
-  // `headers`는 HTTP 헤더입니다.
-  // 모든 헤더 이름은 소문자이며, 괄호 표기법을 사용하여 접근할 수 있습니다.
-  // 예시: `response.headers['content-type']`
-  "headers": {},
-
-  // `config`는 요청을 위해 `Axios`가 제공하는 구성입니다.
-  "config": {},
-
-  // `request`는 이번 응답으로 생성된 요청입니다.
-  // 이것은 node.js에서 마지막 ClientRequest 인스턴스 입니다.
-  // 브라우저에서는 XMLHttpRequest입니다.
-  "request": {}
+  return (
+    <div>
+      /blog/list?id={id}&cate={cate} 블러그 목록 (queryString방식)
+    </div>
+  );
 }
 ```
 
-### 2.1 status 값 참조
+### 9. 공통 레이아웃 적용하기
 
-- https://developer.mozilla.org/ko/docs/Web/HTTP/Status
+```
+<header></header>
+<main>URI 에 따라서 변한다.</main>
+<footer></footer>
+```
+
+### 9.1 기본 Link 이해
 
 ```jsx
-const getMembers = async () => {
-  try {
-    const res = await axios.get(API_URL);
-    console.log(res.status);
-    // 정상적으로 데이터의 결과가 있으므로
-    //  api 회신의 값이 200번 대의 값은 성공
-    const responseStatus = res.status.toString().charAt(0);
-    if (res.status === "2") {
-      setMemberList(res.data);
-    } else {
-      console.log("데이터가 없어요");
-    }
-  } catch (error) {
-    // 만약 404 ,400번 대라면 내꺼 오타 확인하자!
-    const errorStatus = error.response.status.toString().charAt(0);
-    if (errorStatus === "5") {
-      alert("서버가 꺼졌어요");
-    }
-    if (errorStatus === "4") {
-      alert("호출을 실패했습니다.");
-    }
-    console.log(error);
-  }
-};
-```
-
-### 2.2 백엔드 협업시 (예: axios,fetch 등) 코딩 컨벤션
-
-- `/src/apis/` 폴더 생성 권장함
-- `/src/apis/config.js` 파일 생성 권장
-
-```
-import axios from "axios";
-
-export const API_URL = "http://localhost:5000/member";
-
-export const axiosInstance = axios.create();
-
-
-```
-
-- `/src/apis/members.js` 기능별 담당 파일 생성
-
-```
-export const getMembers = async setFunc => {
-  try {
-    const res = await axiosInstance.get(API_URL);
-    console.log(res.status);
-    // 정상적으로 데이터의 결과가 있으므로
-    //  api 회신의 값이 200번 대의 값은 성공
-    const responseStatus = res.status.toString().charAt(0);
-    if (responseStatus === "2") {
-      setFunc(res.data);
-    } else {
-      console.log("데이터가 없어요");
-    }
-  } catch (error) {
-    // 만약 404 ,400번 대라면 내꺼 오타 확인하자!
-    const errorStatus = error.response.status.toString().charAt(0);
-    if (errorStatus === "5") {
-      alert("서버가 꺼졌어요");
-    }
-    if (errorStatus === "4") {
-      alert("호출을 실패했습니다.");
-    }
-    console.log(error);
-  }
-};
-```
-
-- `/src/apis/todos.js` 기능별 담당 파일 생성
-- `/src/apis/diary.js` 기능별 담당 파일 생성
-
-## 2.3 package.json 수정(proxy)
-
-- 수작업
-- `"proxy" : 백엔드측의 ip 주소를 작성합니다.`
-
-```
-  "proxy": "http://192.168.0.66"
-```
-
--Member.jsx
-
-```jsx
-<h1>Member 관리</h1>
-      <div>
-        {memberList.map(item => {
-          return (
-            <div key={item.id}>
-              <div
-                onClick={() => setSelectUser({ ...item })}
-                style={{ cursor: "pointer", backgroundColor: "yellow" }}
-              >
-                {item.id} {item.email}
-              </div>
-              <button onClick={() => deleteMember(item.id, setMemberList)}>
-                삭제
-              </button>
-            </div>
-          );
-        })}
-      </div>
-```
-
-```js
-// 삭제 기능
-export const deleteMember = async (id, setMemberList) => {
-  try {
-    await axiosInstance.delete(`${API_URL}/${id}`);
-    getMembers(setMemberList);
-  } catch (error) {
-    console.log(error);
-  }
-};
-```
-
-### 2.3 향후 시간이 지나면서 코드 고도화를 시도합니다.
-
-- 1단계
-  : API 호출과 화면갱신 즉, state 관리를 .jsx 에서 작성
-- 2단계
-  : API 호출을 별도 파일로 분리, state 관리도 옮겨보고
-- 3단계
-  : API 호출은 JS에서 진행, 그 결과를 return 받아 jsx에서 활용하도록 시도
-
-```jsx
-import axios from "axios";
-import { useState, useEffect } from "react";
-import { deleteMember, getMembers } from "../apis/members";
-
-const Member = () => {
-  const API_URL = "http://localhost:5000/member";
-  // member 목록 관리
-  const [memberList, setMemberList] = useState([]);
-  // 서버에 등록할 데이터 관리
-  const initData = { email: "", pw: "" };
-  const [formData, setFormData] = useState(initData);
-  // 선택된 멤버 관리
-  const selectData = { id: "", email: "", pw: "" };
-  const [selectUser, setSelectUser] = useState(selectData);
-  // 현재 선택된 멤버 수정 중 ?
-  const [isEdit, setIsEdit] = useState(false);
-  const handleChangeEdit = e => {
-    const { name, value } = e.target;
-    setSelectUser({ ...selectUser, [name]: value });
-  };
-  const handleSubmitEdit = e => {
-    // 웹브라우저 새로고침 방지
-    e.preventDefault();
-    putMember({ ...selectUser });
-  };
-
-  // 이벤트 핸들러 함수
-  const handleChange = e => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
-  const handleSubmit = e => {
-    // 웹브라우저 새로고침 방지
-    e.preventDefault();
-    postMember({ ...formData });
-  };
-  //   API 메서드
-
-  const postMember = async item => {
-    try {
-      await axios.post(API_URL, item);
-      callApiMember();
-      setFormData(initData);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-  const putMember = async item => {
-    try {
-      await axios.put(`${API_URL}/${item.id}`, item);
-
-      getMembers();
-      setIsEdit(false);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  // 호출도 하면서 호출된 결과를 state 업데이트에 반영도하고
-  const callApiMember = async () => {
-    const result = await getMembers();
-    setMemberList(result);
-  };
-
-  const callApiDelete = async id => {
-    const result = await deleteMember(id);
-    if (result === "success") {
-      callApiMember();
-    } else {
-      alert("다시 시도하세요");
-    }
-  };
-
-  useEffect(() => {
-    callApiMember();
-    return () => {};
-  }, []);
+import { BrowserRouter as Router, Route, Routes, Link } from "react-router-dom";
+//  as 는 alias 라는 문법으로 별칭을 지음
+import HomePage from "./pages/Index.jsx";
+import AboutPage from "./pages/about/Index.jsx";
+import TeamPage from "./pages/about/Team.jsx";
+import ServicePage from "./pages/service/Index.jsx";
+import NowPage from "./pages/service/Now.jsx";
+import BlogPage from "./pages/blog/Index.jsx";
+import BlogDetailPage from "./pages/blog/Detail.jsx";
+import BlogListPage from "./pages/blog/List.jsx";
+import NotFound from "./pages/404.jsx";
+const App = () => {
   return (
-    <div>
-      <h1>Member 관리</h1>
-      <div>
-        {memberList.map(item => {
-          return (
-            <div key={item.id}>
-              <div
-                onClick={() => setSelectUser({ ...item })}
-                style={{ cursor: "pointer", backgroundColor: "yellow" }}
-              >
-                {item.id} {item.email}
-              </div>
-              <button
-                onClick={() => {
-                  callApiDelete(item.id);
-                }}
-              >
-                삭제
-              </button>
-            </div>
-          );
-        })}
-      </div>
-      <h2>새 멤버 추가</h2>
-      <div>
-        <form onSubmit={e => handleSubmit(e)}>
-          이메일
-          <input
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={e => handleChange(e)}
-          />
-          <br />
-          비번
-          <input
-            type="password"
-            name="pw"
-            value={formData.pw}
-            onChange={e => handleChange(e)}
-          />
-          <br />
-          <button type="submit">회원가입</button>
-        </form>
-      </div>
-      <h3>상세 회원정보</h3>
-      {selectUser?.id !== "" ? (
-        <div>
-          <form onSubmit={e => handleSubmitEdit(e)}>
-            이메일
-            <input
-              type="email"
-              name="email"
-              value={selectUser.email}
-              readOnly={!isEdit}
-              disabled={!isEdit}
-              onChange={e => handleChangeEdit(e)}
-            />
-            <br />
-            비번
-            <input
-              type="password"
-              name="pw"
-              value={selectUser.pw}
-              readOnly={!isEdit}
-              disabled={!isEdit}
-              onChange={e => handleChangeEdit(e)}
-            />
-            <br />
-            {isEdit ? (
-              <>
-                <button type="submit">정보 수정 등록</button>
-                <button type="button" onClick={() => setIsEdit(false)}>
-                  정보 수정 취소
-                </button>
-              </>
-            ) : (
-              <button type="button" onClick={() => setIsEdit(true)}>
-                정보수정
-              </button>
-            )}
-          </form>
-        </div>
-      ) : (
-        "선택된 회원이 없습니다."
-      )}
-    </div>
+    <Router>
+      <header>
+        <Link to="/">🔷 Home</Link>
+        <Link to="/about">🔶 about</Link>
+        <Link to="/about/team">🔸 about/team</Link>
+        <Link to="/service">🔶 service</Link>
+        <Link to="/service/now">🔸 service/now</Link>
+        <Link to="/blog">🔶 blog</Link>
+        <Link to="/blog/1">🔸 blog/:id</Link>
+        <Link to="/blog/iist?id=1&cate=design">🔸 blog/list?쿼리스트링</Link>
+      </header>
+      <main>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+
+          <Route path="/about">
+            <Route index element={<AboutPage />} />
+            <Route path="team" element={<TeamPage />} />
+          </Route>
+
+          <Route path="/service">
+            <Route index element={<ServicePage />}></Route>
+            <Route path="now" element={<NowPage />} />
+          </Route>
+
+          <Route path="/blog">
+            <Route index element={<BlogPage />}></Route>
+            <Route path=":id" element={<BlogDetailPage />} />
+            {/* <Route path="list?id=1&cate=design" element={<BlogListPage />} /> */}
+            <Route path="list" element={<BlogListPage />} />
+          </Route>
+
+          <Route path="*" element={<NotFound />}></Route>
+        </Routes>
+      </main>
+      <footer>하단</footer>
+    </Router>
   );
 };
-
-export default Member;
+export default App;
 ```
 
+### 9.2 component 로 Header.jsx 만들기
+
+```jsx
+import { Link } from "react-router-dom";
+
+const Header = () => {
+  return (
+    <header>
+      <Link to="/">🔷 Home</Link>
+      <Link to="/about">🔶 about</Link>
+      <Link to="/about/team">🔸 about/team</Link>
+      <Link to="/service">🔶 service</Link>
+      <Link to="/service/now">🔸 service/now</Link>
+      <Link to="/blog">🔶 blog</Link>
+      <Link to="/blog/1">🔸 blog/:id</Link>
+      <Link to="/blog/iist?id=1&cate=design">🔸 blog/list?쿼리스트링</Link>
+    </header>
+  );
+};
+export default Header;
+```
+
+### 9.3 component 로 Footer.jsx 만들기
+
+## 10. 페이지에 Props 전달하기
+
+```jsx
+<Route path="/" element={<HomePage title={"좋은회사"} year={2024} />} />
+```
+
+```jsx
+// 목(Mock Data) 데이터  더미 데이터
+const BlogDatas = [
+  { id: 1, title: "블로그 1", cate: "design", content: "디자인 관련글 1" },
+  { id: 2, title: "블로그 2", cate: "market", content: "마케팅 관련글" },
+];
+--------------------------------------------
+<Route index element={<BlogPage data={BlogDatas} />}></Route>;
+```
+
+## 11. 페이지에 Props 중에 children 전달하기
+
+```jsx
+<Footer>
+  <p>Copyright 2024 By Lee</p>
+  {isMember ? <p>로그인 하셨네요.</p> : <p>로그인 전입니다.</p>}
+</Footer>
+```
+
+```jsx
+const Footer = ({ children }) => {
+  return <footer>{children}</footer>;
+};
+export default Footer;
+```
+
+## 12. react-router-dom 의 `Outlet` 이해
+
+- `Router` 를 이용해서 페이지의 `레이아웃`을 유지하고
+- `Router 의 Outlet` 장소에 `path`에 따라서 `컴포넌트 출력`
+- 반드시 중첩 `Router`여야 가능
+- 샘플 예제
+
+```
+1. layout 용 페이지를 만든다
+2. 처음에 index 컴포넌트가 보인다
+3. 그래서 사용자가 블로그에 목록을 보고있다.
+4. 목록 중 상세보기를 클릭하면
+5. 레이아웃에 상세내용 페이지가 출력된다.
+```
+
+- /src/page/blog/Layout.jsx
+
+```jsx
+<Route path="/blog" element={<Layout />}>
+  <Route path=":id" element={<BlogDetailPage />} />
+  <Route index element={<BlogPage data={BlogDatas} />} />
+  {/* <Route path="list?id=1&cate=design" element={<BlogListPage />} /> */}
+  <Route path="list" element={<BlogListPage />} />
+</Route>
+```
+
+## 13. `Outlet` 과 `Children`의 비교
+
+- 공통점
+  : jsx를 전달한다.
+
+  ```jsx
+  <Footer>
+    <p>Copyright 2024 By Lee</p>
+    {isMember ? <p>로그인 하셨네요.</p> : <p>로그인 전입니다.</p>}
+  </Footer>
+  ```
+
+- 차이점
+  : Children 은 props로 전달 (태그의 내용처럼)
+  : `Outlet` 은 `중첩 Route`에 전달
+
+  ```jsx
+  <Route path="/blog" element={<Layout />}>
+    <Route />
+    <Route />
+  </Route>
+  ```
+
+## 14. 패스 및 Params 를 실시간 생성하기
+
+## 14.1. `문자열` 또는 `백틱`으로 생성
+
 ```js
-import { API_URL, axiosInstance } from "./config";
+- const path = "/service"
+- const path = `/service`
+- const path = `/service/${id}`
+// SearchParams의 예
+- const path = `/service/?age=${10}&pass=${12345}`
+```
 
-export const getMembers = async () => {
-  try {
-    const res = await axiosInstance.get(API_URL);
-    // console.log("결과 : ", res.status);
-    // 정상적으로 데이터의 결과가 있으면
-    // API 회신의 200 류의 값은 성공입니다.
-    const responseStatus = res.status.toString().charAt(0);
-    if (responseStatus === "2") {
-      return res.data;
-    } else {
-      console.log("데이터가 없어요.");
-      return [];
-    }
-  } catch (error) {
-    console.log("에러 : ", error);
-    // 만약 404 라면 또는 400 류라면 `우리`를 의심하자.
-    const errorStatus = error.response.status.toString().charAt(0);
+## 14.2. SearchParams 를 만들기
 
-    if (errorStatus === "5") {
-      alert("서버가 꺼졌어요.");
-    }
-    if (errorStatus === "4") {
-      alert("호출에 실패하였습니다.");
-    }
-    console.log(error);
-    return [];
-  }
-};
-// 삭제 기능
-export const deleteMember = async id => {
-  try {
-    const res = await axiosInstance.delete(`${API_URL}/${id}`);
-    // return res.status;
-    return "success";
-  } catch (error) {
-    console.log(error);
-    // return error.res.status;
-    return "fail";
-  }
-};
+```js
+const queryStr = createSearchParams({ 키: 값, 키: 값 }).toString();
+const path = queryStr;
+
+const queryStr = createSearchParams({
+  name: "길동",
+  age: 100,
+}).toString();
+```
+
+### 14.3 `Link to=경로` 말고 `js로 강제 이동하기`
+
+```js
+const navigate = useNavigate();
+const path = `/service`;
+navigate("path");
+```
+
+### 14.4 현재 `path` 를 알고싶을 때
+
+```js
+import { useLocation } from "react-router-dom";
+
+const {pathname, search, state} = useLocation();
+
+console.log(location)
+
+// 담겨진 결과
+// http://localhost:5173/blog?hi=5
+{
+    "pathname": "/blog",
+    "search": "?hi=5",
+    "hash": "",
+    "state": null,
+    "key": "default"
+}
+
+```
+
+### 14.5 `state` 사용자 모르게 라우터에 전달하기
+
+- `Link` 로는 어렵다.
+- `useNavigate()` 이용
+
+```js
+import {useNavigate } from "react-router-dom";
+-----
+const navigate = useNavigate();
+const path = `/service`;
+const 숨긴정보 = {
+  memo : "제품페이지에서 왔어요.",
+  good : "제품 1번을 보고 있었어요",
+  favarite : "제품 1에 관심이 많네요"
+}
+navigate(
+  {
+   pathname: "/blog",
+   search: "?hi=5",
+  },
+  {state : { 숨긴정보 }}
+);
 ```
