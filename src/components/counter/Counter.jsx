@@ -1,17 +1,21 @@
-import { useReducer } from "react";
-import { countReducer } from "../../modules/counter/countReducer";
-import { countInitialState } from "../../modules/counter/countInitialState";
-import { add, minus, reset } from "../../modules/counter/countActions";
+import { useContext } from "react";
+import {
+  CounterStateContext,
+  CouterDispatchContext,
+} from "../../context/counterContext";
 
-const Counter = () => {
-  const [countState, dispatch] = useReducer(countReducer, countInitialState);
+function Counter() {
+  // 앱 전체 context state 용도
+  const state = useContext(CounterStateContext);
+  // 앱 전체 context disoatch 용도
+  const dispatch = useContext(CouterDispatchContext);
   return (
     <div>
-      <h1>Counter : {countState.count}</h1>
-      <button onClick={() => dispatch(add())}>증가</button>
-      <button onClick={() => dispatch(minus())}>감소</button>
-      <button onClick={() => dispatch(reset())}>리셋</button>
+      <h1>Counter : {state.count}</h1>
+      <button onClick={() => dispatch({ type: "add" })}>증가</button>
+      <button onClick={() => dispatch({ type: "minus" })}>감소</button>
+      <button onClick={() => dispatch({ type: "reset" })}>초기화</button>
     </div>
   );
-};
+}
 export default Counter;
